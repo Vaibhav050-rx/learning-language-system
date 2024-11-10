@@ -1,1 +1,182 @@
+-- Database schema for Language Learning Online Platform
 
+-- Table to store users' information
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,  -- For storing password securely
+    full_name VARCHAR(255),
+    date_of_birth DATE,
+    profile_picture_url VARCHAR(255),
+    language_level VARCHAR(50), -- Beginner, Intermediate, Advanced
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table to store languages available on the platform
+CREATE TABLE languages (
+    language_id INT AUTO_INCREMENT PRIMARY KEY,
+    language_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table to store courses for each language
+CREATE TABLE courses (
+    course_id INT AUTO_INCREMENT PRIMARY KEY,
+    language_id INT,
+    course_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    level VARCHAR(50), -- Beginner, Intermediate, Advanced
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (language_id) REFERENCES languages(language_id) ON DELETE CASCADE
+);
+
+-- Table to store lessons for each course
+CREATE TABLE lessons (
+    lesson_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    lesson_title VARCHAR(255),
+    content TEXT, -- Textual content of the lesson
+    video_url VARCHAR(255), -- Link to video content if any
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
+);
+
+-- Table to store quizzes associated with lessons
+CREATE TABLE quizzes (
+    quiz_id INT AUTO_INCREMENT PRIMARY KEY,
+    lesson_id INT,
+    quiz_title VARCHAR(255),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
+);
+
+-- Table to store quiz questions
+CREATE TABLE quiz_questions (
+    question_id INT AUTO_INCREMENT PRIMARY KEY,
+    quiz_id INT,
+    question_text TEXT,
+    question_type ENUM('multiple_choice', 'true_false', 'fill_in_the_blank'), -- types of questions
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
+);
+
+-- Table to store quiz answers
+CREATE TABLE quiz_answers (
+    answer_id INT AUTO_INCREMENT PRIMARY KEY,
+    question_id INT,
+    answer_text TEXT,
+    is_correct BOOLEAN, -- True if the answer is correct, false otherwise
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (question_id) REFERENCES quiz_questions(question_id) ON DELETE CASCADE
+);
+
+-- Table to track users' quiz results
+CREATE TABLE quiz_results (
+    result_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    quiz_id INT,
+    score INT, -- Score out of 100
+    completion_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(quiz_id) ON DELETE CASCADE
+);
+
+-- Table to store user's progress on lessons
+CREATE TABLE user_progress (
+    progress_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    lesson_id INT,
+    completed BOOLEAN DEFAULT FALSE,
+    completion_date TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
+);
+
+-- Table to store speech recognition results for users
+CREATE TABLE speech_recognition (
+    recognition_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    lesson_id INT,
+    speech_input TEXT,
+    pronunciation_score INT, -- Score on pronunciation
+    feedback TEXT, -- Feedback based on user's speech
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (lesson_id) REFERENCES lessons(lesson_id) ON DELETE CASCADE
+);
+
+-- Table to store community interactions (forum posts, discussions, etc.)
+CREATE TABLE community_forum (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    post_title VARCHAR(255),
+    post_content TEXT,
+    post_type ENUM('question', 'discussion', 'announcement'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Table to store feedback and ratings on courses
+CREATE TABLE course_ratings (
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    course_id INT,
+    rating INT CHECK (rating BETWEEN 1 AND 5), -- Rating scale from 1 to 5
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
+);
+
+-- Table to store notifications for users
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    notification_text TEXT,
+    notification_type ENUM('reminder', 'announcement', 'system'),
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Table to store subscription details for premium plans
+CREATE TABLE subscriptions (
+    subscription_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    plan_type ENUM('free', 'premium', 'group'), -- Free, Premium, or Group plans
+    start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Table to store virtual exchange programs or language exchange sessions
+CREATE TABLE language_exchange (
+    exchange_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id_1 INT, -- User 1
+    user_id_2 INT, -- User 2 (native speaker or language partner)
+    language_id INT, -- The language being practiced
+    session_date TIMESTAMP,
+    feedback_user_1 TEXT, -- User 1 feedback on the exchange
+    feedback_user_2 TEXT, -- User 2 feedback on the exchange
+    FOREIGN KEY (user_id_1) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id_2) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (language_id) REFERENCES languages(language_id) ON DELETE CASCADE
+);
+Explanation:
+Users Table: Stores user-related data (e.g., username, email, password, language level).
+Languages Table: Stores information about each available language.
+Courses Table: Links a language to specific courses, and provides descriptions and course levels (Beginner, Intermediate, Advanced).
+Lessons Table: Represents individual lessons for each course, including text content and optional video links.
+Quizzes and Questions Tables: Store information related to quizzes for lessons, including questions and answers.
+Quiz Results Table: Tracks individual users' quiz results.
+User Progress Table: Tracks which lessons users have completed.
+Speech Recognition Table: Stores speech input and feedback on users' pronunciation.
+Community Forum Table: Provides a space for users to interact through posts and discussions.
+Course Ratings Table: Stores feedback and ratings given by users for courses.
+Notifications Table: Stores notifications for users (e.g., reminders, updates, system alerts).
+Subscriptions Table: Tracks subscription details for users with different plan types (free, premium, etc.).
+Language Exchange Table: Stores data for language exchange sessions between users for real-world practice.
