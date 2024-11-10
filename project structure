@@ -1,1 +1,38 @@
+language-learning-platform/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── com/
+│   │   │   │   ├── languagelearning/
+│   │   │   │   │   ├── dao/                # Data Access Object classes
+│   │   │   │   │   │   ├── UserDAO.java     # DAO for user-related DB operations
+│   │   │   │   │   │   ├── CourseDAO.java   # DAO for course-related DB operations
+│   │   │   │   │   │   ├── LessonDAO.java   # DAO for lesson-related DB operations
+│   │   │   │   │   ├── model/               # Model/Entity classes representing DB tables
+│   │   │   │   │   │   ├── User.java        # User entity
+│   │   │   │   │   │   ├── Course.java      # Course entity
+│   │   │   │   │   │   ├── Lesson.java      # Lesson entity
+│   │   │   │   │   ├── util/                # Utility classes
+│   │   │   │   │   │   ├── DatabaseUtils.java # Database connection utility
+│   │   │   │   │   ├── service/             # Service classes for business logic
+│   │   │   │   │   │   ├── UserService.java  # Service for user management
+│   │   │   │   │   │   ├── CourseService.java # Service for course management
+│   │   │   │   │   │   ├── LessonService.java # Service for lesson management
+│   │   │   │   │   ├── Main.java            # Main entry point for the app
+│   │   ├── resources/
+│   │   │   ├── db.properties               # Database connection properties
+│   │   │   ├── log4j.properties            # Logging configuration (optional)
+│   ├── test/
+│   │   ├── java/
+│   │   │   ├── com/
+│   │   │   │   ├── languagelearning/
+│   │   │   │   │   ├── dao/
+│   │   │   │   │   │   ├── UserDAOTest.java  # Unit tests for UserDAO
+│   │   │   │   │   │   ├── CourseDAOTest.java # Unit tests for CourseDAO
+│   │   │   │   │   │   ├── LessonDAOTest.java # Unit tests for LessonDAO
+│   │   │   │   │   ├── service/
+│   │   │   │   │   │   ├── UserServiceTest.java  # Unit tests for UserService
+│   │   │   │   │   │   ├── CourseServiceTest.java # Unit tests for CourseService
+│   │   │   │   │   │   ├── LessonServiceTest.java # Unit tests for LessonService
+│   └── pom.xml                               # Maven project descriptor
 
